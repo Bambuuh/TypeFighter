@@ -8,7 +8,7 @@ import typeFighter.start.Move;
 
 public class Player {
 	
-	protected InputReader reader;
+	protected InputReader input;
 	
 	protected AnimationHandler handler;
 	protected Animation playerAnimation;
@@ -27,7 +27,7 @@ public class Player {
 	
 	public Player(float x, float y, AnimationHandler animationHandler, boolean horizontal, boolean vertical, int playerID){
 		handler = animationHandler;
-		reader = new InputReader();
+		input = new InputReader();
 		move = Move.IDLE;
 		
 		this.horizontal = horizontal;

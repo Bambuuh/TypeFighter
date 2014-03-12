@@ -1,13 +1,14 @@
 package typeFighter.Fighters;
 
-import java.util.ArrayList;
-
 import org.newdawn.slick.Animation;
 
 import typeFighter.start.AnimationHandler;
+import typeFighter.start.InputReader;
 import typeFighter.start.Move;
 
 public class Player {
+	
+	protected InputReader reader;
 	
 	protected AnimationHandler handler;
 	protected Animation playerAnimation;
@@ -26,7 +27,7 @@ public class Player {
 	
 	public Player(float x, float y, AnimationHandler animationHandler, boolean horizontal, boolean vertical, int playerID){
 		handler = animationHandler;
-		
+		reader = new InputReader();
 		move = Move.IDLE;
 		
 		this.horizontal = horizontal;

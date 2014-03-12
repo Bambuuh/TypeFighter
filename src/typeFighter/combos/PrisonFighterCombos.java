@@ -2,12 +2,27 @@ package typeFighter.combos;
 
 import java.util.ArrayList;
 
+import org.lwjgl.input.Keyboard;
+
 public class PrisonFighterCombos extends ComboList  {
 	
 	public PrisonFighterCombos() {
 		comboList = new ArrayList<String>();
 		
 		generateCombos();
+	}
+	
+	public void executeCombo(ComboLetter comboLetter){
+		switch (Character.toLowerCase(comboLetter.getChar())) {
+		case 'a':
+			if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
+				comboLetter.setChecked(true);
+			}
+			break;
+
+		default:
+			break;
+		}
 	}
 	
 	private void generateCombos(){

@@ -20,8 +20,10 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
+import org.newdawn.slick.Color;
 
 import typeFighter.Fighters.PrisonFighter;
+import typeFighter.start.DrawString.Alignment;
 
 
 public class Game {

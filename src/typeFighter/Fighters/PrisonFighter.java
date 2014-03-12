@@ -1,14 +1,32 @@
 package typeFighter.Fighters;
 
-import org.lwjgl.input.Keyboard;
+import java.util.ArrayList;
 
+import org.lwjgl.input.Keyboard;
+import org.newdawn.slick.Color;
+
+import typeFighter.combos.ComboLetter;
+import typeFighter.combos.ComboList;
 import typeFighter.combos.PrisonFighterCombos;
 import typeFighter.start.AnimationHandler;
+import typeFighter.start.DrawString;
 import typeFighter.start.Move;
+import typeFighter.start.DrawString.Alignment;
 
 public class PrisonFighter extends Player {
 
+	private String yellow = "#FFFF25";
+	private String red = "#FF0000";
+	
+	private Character currentInput;
+	
 	private PrisonFighterCombos combos;
+	
+	private ArrayList<ComboLetter> currentCombo;
+	
+	private DrawString drawer;
+	
+	private int index = 0;
 	
 	public PrisonFighter(float x, float y, AnimationHandler animationHandler,
 			boolean horizontal, boolean vertical, int playerID) {
@@ -17,11 +35,25 @@ public class PrisonFighter extends Player {
 		playerAnimation = handler.getPrisonFighter(0, 0, 945, 105, 105, 105, horizontal, false);
 		
 		combos = new PrisonFighterCombos();
+		currentCombo = new ArrayList<ComboLetter>();
+		
+		drawer = new DrawString(11, Alignment.RIGHT);
+		
+		generateCombo(combos.getComboList().get(0));
+		
 	}
 
 	@Override
 	public void input() {
-		if (!attacking && Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
+		
+		checkInput();
+		
+		if (!attacking && Keyboard.isKeyDown(Keyboard.KEY_A)) {
+			move = Move.HIGH;
+			playerAnimation = handler.getHighKick(horizontal);
+			attacking = true;
+		}
+		if (!attacking && Keyboard.isKeyDown(Keyboard.KEY_S)) {
 			move = Move.HIGH;
 			playerAnimation = handler.getHighKick(horizontal);
 			attacking = true;
@@ -37,6 +69,8 @@ public class PrisonFighter extends Player {
 
 	@Override
 	public void update(Player player) {
+		
+		
 		switch (player.getMove()) {
 		case HIGH:
 			attacked = true;
@@ -57,6 +91,34 @@ public class PrisonFighter extends Player {
 	public void render(int delta) {
 		playerAnimation.draw(x, y);
 		playerAnimation.update(delta);
+		if (ID == 1) {
+			int i = 0;
+			for (ComboLetter comboLetter : currentCombo) {
+				i +=6.5;
+				if (comboLetter.isChecked()) {
+					drawer.drawString(x+i, y-200, comboLetter.getChar()+"", Color.decode(yellow));
+				} else{
+					drawer.drawString(x+i, y-200, comboLetter.getChar()+"", Color.decode(red));
+				}
+			}
+		}
 	}
 	
+	public void checkInput(){
+			currentInput = reader.getInput();
+			
+		if (Character.toLowerCase(currentInput) == Character.toLowerCase(currentCombo.get(index).getChar())) {
+			System.out.println("hej");
+			currentCombo.get(index).setChecked(true);
+			if (index < currentCombo.size()-1) {
+				index++;
+				
+			}
+		}
+	}
+	
+	private void generateCombo(String combo){
+		currentCombo.clear();
+		currentCombo = ComboList.generateCombo(combo);
+	}
 }

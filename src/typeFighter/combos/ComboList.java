@@ -2,6 +2,7 @@ package typeFighter.combos;
 
 import java.util.ArrayList;
 
+import typeFighter.Fighters.Player;
 import typeFighter.start.InputReader;
 
 public class ComboList {
@@ -42,11 +43,12 @@ public class ComboList {
 		
 	}
 	
-	public ArrayList<ComboLetter> startNewCombo(InputReader input){
+	public ArrayList<ComboLetter> startNewCombo(InputReader input, Player player){
 		ArrayList<ComboLetter> newCombo = new ArrayList<>();
 		char currentInput = input.getInput();
 		for (Character c : comboStarter) {
 			if (Character.toLowerCase(currentInput) == Character.toLowerCase(c)) {
+				player.increaseComboCounter(1);
 				newCombo = generateCombo(comboList.get(comboStarter.indexOf(c)));
 			}
 		}

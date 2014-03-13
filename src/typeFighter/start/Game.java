@@ -28,8 +28,8 @@ import typeFighter.start.DrawString.Alignment;
 
 public class Game {
 
-	public static final int WIDTH = 1024;
-	public static final int HEIGHT = 512;
+	public static final int WIDTH = 1280;
+	public static final int HEIGHT = 480;
 	
 	private long lastFrame;
 	
@@ -42,8 +42,8 @@ public class Game {
 		initGL();
 		animation = new AnimationHandler();
 		
-		fighter1 = new PrisonFighter(420, 250, animation, false, false, 1);
-		fighter2 = new PrisonFighter(WIDTH-520, 250, animation, true, false, 2);
+		fighter1 = new PrisonFighter(550, 350, animation, false, false, 1);
+		fighter2 = new PrisonFighter(630, 350, animation, true, false, 2);
 		
 		start();
 	}
@@ -69,7 +69,6 @@ public class Game {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		//Ortho is the dimentions of the game in x, y and z axis
 		glOrtho(0, WIDTH, HEIGHT, 0, 1, -1);
 		glMatrixMode(GL_MODELVIEW);
 	}
@@ -89,19 +88,56 @@ public class Game {
 	}
 	
 	public void readInput(){
-		fighter1.input();
+		fighter1.input(fighter2);
 	}
 	
 	public void update(int delta){
-		fighter1.update(fighter2);
-		fighter2.update(fighter1);
+		fighter1.update(fighter2, delta);
+		fighter2.update(fighter1, delta);
+//		checkForPowerAttack(delta);
 		
 	}
 	
 	public void render(int delta){
 		animation.getBarFight().draw();
-		fighter1.render(delta);
+		animation.getHealthBarBorder().draw(0, 10);
+		displayHealth();
 		fighter2.render(delta);
+		fighter1.render(delta);
+	}
+	
+	private void displayHealth(){
+		for (int i = 0; i < fighter1.getHealth(); i++) {
+			animation.getHealth().draw(109+(48*i), 26);
+		}
+		for (int i = 0; i < fighter2.getHealth(); i++) {
+			animation.getHealth().draw(696+(48*i), 26);
+		}
+	}
+	
+	public void checkForPowerAttack(int delta){
+		if (fighter1.isPowerAttack()) {
+			fighter1.setPlayerAnimation(animation.getPowerPunch());
+			fighter2.setPlayerAnimation(animation.getFallAnimation());
+			while (fighter1.getPlayerAnimation().getFrame()<=5 && !fighter2.getPlayerAnimation().isStopped()){
+				GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+				delta = getDelta();
+				animation.getBarFight().draw();
+				animation.getHealthBarBorder().draw(0, 10);
+				displayHealth();
+				if (fighter1.getPlayerAnimation().getFrame() == 5 || fighter1.getPlayerAnimation().isStopped()) {
+					fighter2.getPlayerAnimation().draw(fighter2.getX(), fighter2.getY()-35);
+					fighter2.getPlayerAnimation().update(delta);
+				}
+				fighter1.getPlayerAnimation().draw(fighter1.getX(), fighter1.getY()-9);
+				fighter1.getPlayerAnimation().update(delta);
+				
+				Display.update();
+				Display.sync(60);
+				
+			}
+			fighter1.setPowerAttack(false);
+		}
 	}
 	
 	public int getDelta() {

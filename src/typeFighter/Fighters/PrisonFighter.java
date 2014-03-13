@@ -3,10 +3,10 @@ package typeFighter.Fighters;
 import java.util.ArrayList;
 import java.util.Random;
 
+import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Color;
 
 import typeFighter.combos.ComboLetter;
-import typeFighter.combos.ComboList;
 import typeFighter.combos.PrisonFighterCombos;
 import typeFighter.start.AnimationHandler;
 import typeFighter.start.DrawString;
@@ -40,7 +40,7 @@ public class PrisonFighter extends Player {
 		
 		rand = new Random();
 		
-		playerAnimation = handler.getPrisonFighter(0, 0, 945, 105, 105, 105, horizontal, false);
+		playerAnimation = handler.getPrisonFighter(0, 0, 945, 110, 105, 110, horizontal, false);
 		
 		combos = new PrisonFighterCombos();
 		currentCombo = new ArrayList<ComboLetter>();
@@ -51,23 +51,57 @@ public class PrisonFighter extends Player {
 	}
 
 	@Override
-	public void input() {
+	public void input(Player player) {
 		currentTime = System.currentTimeMillis();
-		checkInput();
+		checkInput(player);
 		chooseAttack();
-		
-		if (!attacking && move != Move.IDLE && currentTime - lastCheck >= 500) {
-			move = Move.IDLE;
-			playerAnimation = handler.getPrisonFighter(0, 0, 945, 105, 105, 105, horizontal, false);
-		}
-		if (moveDecider == index && attacking) {
-			attacking = false;
-		}
+		checkIfIdle();
+		setIdle();
 	}
 
 	@Override
-	public void update(Player player) {
-		
+	public void update(Player player, int delta) {
+		checkComboCounter(player, delta);
+		updateComboString();
+		setGuard(player);
+		resetComboString();
+	}
+
+	@Override
+	public void render(int delta) {
+		playerAnimation.draw(x, y);
+		playerAnimation.update(delta);
+		if (move == Move.HIGH && playerAnimation.getFrame() == 3){
+			if (!hitAnimation.isStopped()) {
+				hitAnimation.draw(x+playerAnimation.getWidth()-hitAnimation.getWidth()/2-5,y+playerAnimation.getHeight()-97-hitAnimation.getHeight()/2);
+				hitAnimation.update(delta);
+			}
+		}
+		if (move == Move.MIDDLE && playerAnimation.getFrame() == 3){
+			if (!hitAnimation.isStopped()) {
+				hitAnimation.draw(x+playerAnimation.getWidth()-hitAnimation.getWidth()/2-5,y+playerAnimation.getHeight()-66-hitAnimation.getHeight()/2);
+				hitAnimation.update(delta);
+			}
+		}
+		if (move == Move.LOW && playerAnimation.getFrame() == 2){
+			if (!hitAnimation.isStopped()) {
+				hitAnimation.draw(x+playerAnimation.getWidth()-hitAnimation.getWidth()/2-5,y+playerAnimation.getHeight()-36-hitAnimation.getHeight()/2);
+				hitAnimation.update(delta);
+			}
+		}
+		drawComboString();
+		if (playerAnimation.getFrame() <1) {
+			hitAnimation.restart();
+		}
+	}
+	
+	private void resetComboString(){
+		if (currentCombo.size() == 0) {
+			currentCombo = combos.startNewCombo(input, this);
+		}
+	}
+	
+	private void updateComboString(){
 		if (index > currentCombo.size()-1) {
 			currentCombo.clear();
 			index = 1;
@@ -77,18 +111,17 @@ public class PrisonFighter extends Player {
 		if (index == 1 && currentCombo.size() != 0) {
 			currentCombo.get(0).setChecked(true);
 		}
-		
-		setGuard(player);
-		
-		if (currentCombo.size() == 0) {
-			currentCombo = combos.startNewCombo(input);
+	}
+	
+	private void checkComboCounter(Player player, int delta){
+		if (comboCounter == 6) {
+			powerAttack = true;
+			player.reduceHealth(1);
+			comboCounter = 0;
 		}
 	}
-
-	@Override
-	public void render(int delta) {
-		playerAnimation.draw(x, y);
-		playerAnimation.update(delta);
+	
+	private void drawComboString(){
 		if (ID == 1) {
 			int i = 0;
 			for (ComboLetter comboLetter : currentCombo) {
@@ -102,15 +135,33 @@ public class PrisonFighter extends Player {
 		}
 	}
 	
-	public void checkInput(){
-			currentInput = input.getInput();
-			
-			if (index <= currentCombo.size()-1) {
-				if (Character.toLowerCase(currentInput) == Character.toLowerCase(currentCombo.get(index).getChar())) {
-					currentCombo.get(index).setChecked(true);
-					index++;
-			}
+	public void setIdle(){
+		if (moveDecider == index && attacking) {
+			attacking = false;
 		}
+	}
+	
+	private void checkIfIdle(){
+		if (!attacking && move != Move.IDLE && currentTime - lastCheck >= 500) {
+			move = Move.IDLE;
+			playerAnimation = handler.getPrisonFighter(0, 0, 945, 110, 105, 110, horizontal, false);
+		}
+	}
+	
+	public void checkInput(Player player){
+			if (!powerAttack || !player.isPowerAttack()) {
+				currentInput = input.getInput();
+				if (index <= currentCombo.size()-1) {
+					if (Character.toLowerCase(currentInput) == Character.toLowerCase(currentCombo.get(index).getChar())) {
+						currentCombo.get(index).setChecked(true);
+						comboCounter++;
+						if (player.getComboCounter() > 0) {
+							player.reduceComboCounter(1);
+						}
+						index++;
+					}
+				}
+			}
 	}
 	
 	public void chooseAttack(){
@@ -128,6 +179,7 @@ public class PrisonFighter extends Player {
 			}
 			if (random >=67 && random <= 100){
 				move = Move.LOW;
+				playerAnimation = handler.getLowKick(horizontal);
 			}
 			
 			attacking = true;
@@ -161,10 +213,5 @@ public class PrisonFighter extends Player {
 			if (ID == 1) this.playerAnimation = handler.getPrisonFighter(0, 0, 945, 105, 105, 105, false, false);
 			if (ID == 2) this.playerAnimation = handler.getPrisonFighter(945, 0, 945, 105, 105, 105, false, false);
 		}
-	}
-	
-	private void generateCombo(String combo){
-		currentCombo.clear();
-		currentCombo = ComboList.generateCombo(combo);
 	}
 }

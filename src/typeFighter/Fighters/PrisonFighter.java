@@ -17,6 +17,7 @@ public class PrisonFighter extends Player {
 
 	private String yellow = "#FFFF25";
 	private String red = "#FF0000";
+	private String artLink = "http://southtownexpress.deviantart.com/";
 	
 	private Character currentInput;
 	

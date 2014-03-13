@@ -43,6 +43,16 @@ public class AnimationHandler {
 		return prisonAnimation;
 	}
 	
+	public Animation getMidKick(boolean horizontal){
+		Animation prisonAnimation;
+		SpriteSheet prisonFighterSheet;
+		
+		prisonFighterSheet = new SpriteSheet(prisonFighter.getSubImage(130, 210, 130, 109).getFlippedCopy(horizontal, false), 130, 109);
+		prisonAnimation = new Animation(prisonFighterSheet, 200);
+		
+		return prisonAnimation;
+	}
+	
 	public Animation getHighBlock(boolean horizontal){
 		Animation prisonAnimation;
 		SpriteSheet prisonFighterSheet;

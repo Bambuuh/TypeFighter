@@ -79,10 +79,6 @@ public class Game {
 			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 			
 			int delta = getDelta();
-			
-			 if (Keyboard.isKeyDown(Keyboard.KEY_C)){
-				 fighter2.setMove(Move.HIGH);
-			 }
 			readInput();
 			update(delta);
 			render(delta);

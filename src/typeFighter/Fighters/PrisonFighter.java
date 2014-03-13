@@ -1,8 +1,8 @@
 package typeFighter.Fighters;
 
 import java.util.ArrayList;
+import java.util.Random;
 
-import org.lwjgl.input.Keyboard;
 import org.newdawn.slick.Color;
 
 import typeFighter.combos.ComboLetter;
@@ -26,12 +26,18 @@ public class PrisonFighter extends Player {
 	
 	private DrawString drawer;
 	
+	private Random rand;
+	
 	private int index = 1;
 	private int moveDecider = 0;
+	private long lastCheck;
+	private long currentTime;
 	
 	public PrisonFighter(float x, float y, AnimationHandler animationHandler,
 			boolean horizontal, boolean vertical, int playerID) {
 		super(x, y, animationHandler, horizontal, vertical, playerID);
+		
+		rand = new Random();
 		
 		playerAnimation = handler.getPrisonFighter(0, 0, 945, 105, 105, 105, horizontal, false);
 		
@@ -45,21 +51,11 @@ public class PrisonFighter extends Player {
 
 	@Override
 	public void input() {
-		
+		currentTime = System.currentTimeMillis();
 		checkInput();
+		chooseAttack();
 		
-		if (!attacking && moveDecider < index) {
-			move = Move.HIGH;
-			playerAnimation = handler.getHighKick(horizontal);
-			attacking = true;
-			moveDecider++;
-		}
-		if (!attacking && Keyboard.isKeyDown(Keyboard.KEY_S)) {
-			move = Move.HIGH;
-			playerAnimation = handler.getHighKick(horizontal);
-			attacking = true;
-		}
-		if (!attacking && move != Move.IDLE) {
+		if (!attacking && move != Move.IDLE && currentTime - lastCheck >= 500) {
 			move = Move.IDLE;
 			playerAnimation = handler.getPrisonFighter(0, 0, 945, 105, 105, 105, horizontal, false);
 		}
@@ -74,7 +70,7 @@ public class PrisonFighter extends Player {
 		if (index > currentCombo.size()-1) {
 			currentCombo.clear();
 			index = 1;
-			moveDecider = 0;
+			moveDecider = 1;
 		}
 		
 		if (index == 1 && currentCombo.size() != 0) {
@@ -113,6 +109,29 @@ public class PrisonFighter extends Player {
 					currentCombo.get(index).setChecked(true);
 					index++;
 			}
+		}
+	}
+	
+	public void chooseAttack(){
+		int random = rand.nextInt(100);
+		if (!attacking && moveDecider < index) {
+			lastCheck = System.currentTimeMillis();
+			
+			if (random >=0 && random <= 33){
+				move = Move.HIGH;
+				playerAnimation = handler.getHighKick(horizontal);
+			}
+			if (random >=34 && random <= 66){
+				move = Move.MIDDLE;
+				playerAnimation = handler.getMidKick(horizontal);
+			}
+			if (random >=67 && random <= 100){
+				move = Move.LOW;
+			}
+			
+			attacking = true;
+			moveDecider++;
+			random = -1;
 		}
 	}
 	

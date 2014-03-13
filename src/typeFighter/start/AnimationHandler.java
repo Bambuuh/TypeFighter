@@ -53,4 +53,14 @@ public class AnimationHandler {
 		return prisonAnimation;
 	}
 	
+	public Animation getLowBlock(boolean horizontal){
+		Animation prisonAnimation;
+		SpriteSheet prisonFighterSheet;
+		
+		prisonFighterSheet = new SpriteSheet(prisonFighter.getSubImage(105, 420, 105, 105).getFlippedCopy(horizontal, false), 105, 105);
+		prisonAnimation = new Animation(prisonFighterSheet, 200);
+		
+		return prisonAnimation;
+	}
+	
 }

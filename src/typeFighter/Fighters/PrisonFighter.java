@@ -27,6 +27,7 @@ public class PrisonFighter extends Player {
 	private DrawString drawer;
 	
 	private int index = 1;
+	private int moveDecider = 0;
 	
 	public PrisonFighter(float x, float y, AnimationHandler animationHandler,
 			boolean horizontal, boolean vertical, int playerID) {
@@ -37,9 +38,8 @@ public class PrisonFighter extends Player {
 		combos = new PrisonFighterCombos();
 		currentCombo = new ArrayList<ComboLetter>();
 		
-		drawer = new DrawString(11, Alignment.RIGHT);
+		drawer = new DrawString(20, Alignment.RIGHT);
 		
-//		generateCombo(combos.getComboList().get(0));
 		
 	}
 
@@ -48,10 +48,11 @@ public class PrisonFighter extends Player {
 		
 		checkInput();
 		
-		if (!attacking && Keyboard.isKeyDown(Keyboard.KEY_A)) {
+		if (!attacking && moveDecider < index) {
 			move = Move.HIGH;
 			playerAnimation = handler.getHighKick(horizontal);
 			attacking = true;
+			moveDecider++;
 		}
 		if (!attacking && Keyboard.isKeyDown(Keyboard.KEY_S)) {
 			move = Move.HIGH;
@@ -62,7 +63,7 @@ public class PrisonFighter extends Player {
 			move = Move.IDLE;
 			playerAnimation = handler.getPrisonFighter(0, 0, 945, 105, 105, 105, horizontal, false);
 		}
-		if (!Keyboard.isKeyDown(Keyboard.KEY_SPACE) && attacking) {
+		if (moveDecider == index && attacking) {
 			attacking = false;
 		}
 	}
@@ -70,28 +71,21 @@ public class PrisonFighter extends Player {
 	@Override
 	public void update(Player player) {
 		
+		if (index > currentCombo.size()-1) {
+			currentCombo.clear();
+			index = 1;
+			moveDecider = 0;
+		}
+		
 		if (index == 1 && currentCombo.size() != 0) {
 			currentCombo.get(0).setChecked(true);
 		}
 		
-		switch (player.getMove()) {
-		case HIGH:
-			attacked = true;
-			this.playerAnimation = handler.getHighBlock(horizontal);
-			break;
-
-		default:
-			break;
-		}
-		if (player.getMove() == Move.IDLE && attacked) {
-			attacked = false;
-			if (ID == 1) this.playerAnimation = handler.getPrisonFighter(0, 0, 945, 105, 105, 105, false, false);
-			if (ID == 2) this.playerAnimation = handler.getPrisonFighter(945, 0, 945, 105, 105, 105, false, false);
-		}
+		setGuard(player);
+		
 		if (currentCombo.size() == 0) {
 			currentCombo = combos.startNewCombo(input);
 		}
-		System.out.println(currentCombo.size());
 	}
 
 	@Override
@@ -101,7 +95,7 @@ public class PrisonFighter extends Player {
 		if (ID == 1) {
 			int i = 0;
 			for (ComboLetter comboLetter : currentCombo) {
-				i +=6.5;
+				i += 12;
 				if (comboLetter.isChecked()) {
 					drawer.drawString(x+i, y-200, comboLetter.getChar()+"", Color.decode(yellow));
 				} else{
@@ -114,16 +108,38 @@ public class PrisonFighter extends Player {
 	public void checkInput(){
 			currentInput = input.getInput();
 			
-			if (index > currentCombo.size()-1) {
-				currentCombo.clear();
-				index = 1;
-			}
-			
 			if (index <= currentCombo.size()-1) {
 				if (Character.toLowerCase(currentInput) == Character.toLowerCase(currentCombo.get(index).getChar())) {
 					currentCombo.get(index).setChecked(true);
 					index++;
 			}
+		}
+	}
+	
+	private void setGuard(Player player){
+		switch (player.getMove()) {
+		case HIGH:
+			attacked = true;
+			this.playerAnimation = handler.getHighBlock(horizontal);
+			break;
+			
+		case MIDDLE:
+			attacked = true;
+			this.playerAnimation = handler.getHighBlock(horizontal);
+			break;
+			
+		case LOW:
+			attacked = true;
+			this.playerAnimation = handler.getLowBlock(horizontal);
+			break;
+
+		default:
+			break;
+		}
+		if (player.getMove() == Move.IDLE && attacked) {
+			attacked = false;
+			if (ID == 1) this.playerAnimation = handler.getPrisonFighter(0, 0, 945, 105, 105, 105, false, false);
+			if (ID == 2) this.playerAnimation = handler.getPrisonFighter(945, 0, 945, 105, 105, 105, false, false);
 		}
 	}
 	

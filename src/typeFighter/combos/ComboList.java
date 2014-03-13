@@ -46,7 +46,7 @@ public class ComboList {
 		ArrayList<ComboLetter> newCombo = new ArrayList<>();
 		char currentInput = input.getInput();
 		for (Character c : comboStarter) {
-			if (currentInput == c) {
+			if (Character.toLowerCase(currentInput) == Character.toLowerCase(c)) {
 				newCombo = generateCombo(comboList.get(comboStarter.indexOf(c)));
 			}
 		}
